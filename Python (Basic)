@@ -1,0 +1,62 @@
+// 1) FIZZBUZZ.py (PRACTICE QUESTION)
+
+MAIN CODE ==>>
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+
+#
+# Complete the 'fizzBuzz' function below.
+#
+# The function accepts INTEGER n as parameter.
+#
+
+def fizzBuzz(n):
+    for number in range(1, n + 1):
+        if number % 3 == 0 and number % 5 == 0:
+            print('FizzBuzz')
+        elif number % 3 == 0:
+            print('Fizz')
+        elif number % 5 == 0:
+            print('Buzz')
+        else:
+            print(number)
+
+
+if __name__ == '__main__':
+    n = int(input().strip())
+
+    fizzBuzz(n)
+    
+    ((MAIN QUESTIONS))
+    
+    
+// 1) REVERSE-WORD-AND-SWAP-CASE.py
+    
+    MAIN CODE ==>>
+    
+    def swap_case(word):
+    return ''.join([character.lower() if character.isupper() else character.upper() for character in word])
+
+
+def reverse_words_order_and_swap_cases(sentence):
+    words = sentence.split(' ')[::-1]
+    return ' '.join([swap_case(word) for word in words])
+
+
+print(swap_case('hello'))
+
+// 2) STRING-REPRESENTATION-OF-OBJECTS.py
+
+MAIN CODE ==>>
+
+class Car:
+    def __init__(self, max_speed, unit):
+        self.max_speed = max_speed
+        self.unit = unit
