@@ -1,0 +1,41 @@
+// 1) TEMPERATURE CONVORTER
+
+MAIN CODE PART ==>>
+
+export class TemperatureConverter{
+c: any;
+f:any;
+
+changed(value: any, type: any){
+if(value){
+if(type == 'c'){
+let feh=(value * 9 / 5)+32;
+this.f = feh.toFixed(1);
+}
+else{
+let cel =(value -32)*(5 / 9);
+this.c =cel.toFixed(1);
+}
+}
+else{
+this.c = null;
+this.f =null;
+}
+}
+}
+
+       // HTML PART CORRECTION
+       
+       
+<div class="layout-column align-items-center mt-50">
+
+  <section class="layout-row align-items-center justify-content-between">
+    <label>Celsius: </label>
+    <input type="number" [(ngModel)]="c" (ngModelChange)="changed($event, 'c')" class="large" data-test-id="celsius-input"/>
+  </section>
+
+  <section class="layout-row align-items-center justify-content-between">
+      <label>Fahrenheit: </label>
+      <input type="number" [(ngModel)]="f" (ngModelChange)="changed($event, 'f')" class="large" data-test-id="fahrenheit-input"/>
+  </section>
+</div>
