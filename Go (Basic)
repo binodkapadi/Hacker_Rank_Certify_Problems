@@ -1,0 +1,61 @@
+// 1)Go: string Operations ==>
+ 
+ CODE:
+ 
+ var(
+    digits = map[rune]struct{}{
+        '0': struct{}{},
+        '1': struct{}{},
+        '2': struct{}{},
+        '3': struct{}{},
+        '4': struct{}{},
+        '5': struct{}{},
+        '6': struct{}{},
+        '7': struct{}{},
+        '8': struct{}{},
+        '9': struct{}{},
+    }
+)
+
+func ModifyString(str string) string {
+    var validChars []rune
+    
+    for _, s := range strings.TrimSpace(str) {
+        if _, ok := digits[s]; ok {
+            continue
+        }
+        
+         validChars = append( validChars, s)
+    }
+    
+    N := len( validChars)
+    
+    var sb strings.Builder
+    
+    for i := N-1; i >= 0; i--{
+        sb.WriteRune( validChars[i])
+    }
+    
+    return sb.String()
+}
+
+// 2) Go: JSON Encoding ==>
+
+CODE:
+
+type Manager struct {
+FullName    string `json:"full_name,omitempty"`
+Position    string `json:"position,omitempty"`
+Age         int32 `json:"age,omitempty"`
+YearsInCompany int32 `json:"years_in_company,omitempty"`
+}
+
+func EncodeManager(manager *Manager) (io.Reader, error) {
+jsonBytes, err := json.Marshal(manager)
+if err != nil { 
+     return nil, err
+}
+
+bufio := bytes.NewBuffer(jsonBytes)
+return bufio, nil
+}
