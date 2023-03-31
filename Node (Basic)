@@ -1,0 +1,200 @@
+// 1) Node.js Express: Pagination Middleware :::
+
+CODE HERE ==>>
+
+====================================================================## middleware.js <<==>> file 1===================================================================
+
+MAIN CODE::
+
+  let page=+req.query.page||1 
+     let limit=+req.query.limit||3 
+     let skip=+req.query.skip||(page - 1) * limit 
+     let searchTerm=req.query.q||'' 
+     let search=new RegExp( searchTerm, 'gi' )||'' 
+     let context 
+     context={page,limit,skip,search,searchTerm} 
+     req.context=context; 
+     next();
+     
+======================================================================## recipes.js <<==>> file 2====================================================================
+
+MAIN CODE::
+
+var recipes = require('../recipes.json');
+var router = require('express').Router();
+
+
+router.get('/', (req, res) => {
+    const {context} = req;
+    let results = [];
+    if (context.searchTerm) {
+        results = recipes.filter(({name}) => name.match(context.search))
+    } else {
+        results = recipes
+    }
+    results = results.slice(context.skip, (context.skip + context.limit))
+    res.json({
+        page: context.page,
+        limit: context.limit,
+        skip: context.skip,
+        search: context.searchTerm,
+        data: results
+    });
+});
+
+module.exports = router;
+
+================================================================## app.js <<==>> file 3==============================================================================
+
+MAIN CODE::
+
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var middleware = require('./middleware');
+
+var indexRouter = require('./routes/index');
+var recipesRouter = require('./routes/recipes');
+
+var app = express();
+
+// view engine setup
+app.set('view engine', 'jade');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+
+app.use('/recipes', middleware, recipesRouter);
+
+
+module.exports = app;
+
+
+=====================================================================================================================================================================
+=====================================================================================================================================================================
+
+// 2) Node.js: Order Processing :::
+
+CODE HERE ==>>
+
+====================================================================## processor.js <<==>> file 1===================================================================
+
+MAIN CODE ::
+
+const EventEmitter = require('events'); 
+ const StockList = require('./stock-list.json'); 
+  
+ class Processor extends EventEmitter { 
+   constructor() { 
+     super() 
+     this.eventEmits = ['PROCESSING_STARTED', 'PROCESSING_SUCCESS', 'PROCESSING_FAILED']; 
+     this.failReasons = ['INSUFFICIENT_STOCK', 'LINEITEMS_EMPTY'] 
+   } 
+  
+   // place order method 
+   placeOrder({orderNumber,lineItems}) { 
+  
+     // processing started 
+     this.emit(this.eventEmits[0], orderNumber); 
+      
+     // no line items 
+     if(!lineItems.length) { 
+       this.emit(this.eventEmits[2], { 
+         orderNumber: orderNumber, 
+         reason: this.failReasons[1] 
+       }); 
+     } else { 
+       for (const item of lineItems) { 
+         const {itemId, quantity} = item; 
+  
+         // insufficient stock check 
+         if (this.validStock(itemId, quantity, orderNumber) === -1) return; 
+       }; 
+  
+       // processing success 
+       this.emit(this.eventEmits[1], orderNumber); 
+     }; 
+      
+   } 
+  
+   // validate order & stock method 
+   validStock(itemId, quantity, orderNumber) { 
+     const stockCheck = StockList.find(item => (item.id === itemId && item.stock >= quantity)); 
+     if (!stockCheck) { 
+       // if no stock emit processing fail & reason is insufficient stock 
+       this.emit(this.eventEmits[2], { 
+         orderNumber, 
+         reason: this.failReasons[0], 
+         itemId 
+       }); 
+       return -1; 
+     }; 
+   } 
+  
+ } 
+  
+ module.exports = Processor;
+ 
+ 
+ ====================================================================## index.js <<==>> file 1=======================================================================
+ 
+ MAIN CODE ::
+ 
+ const OrderProcessor = require('./processor');
+
+const orderProcessor = new OrderProcessor();
+
+orderProcessor.on('PROCESSING_STARTED', (orderNumber) => {
+    console.log(`Pre Order Checks Running for ${orderNumber}`)
+});
+
+orderProcessor.on('PROCESSING_FAILED', (failureData) => {
+    console.log(`Failed Order`);
+    console.log(`- OrderNumber: ${failureData.orderNumber}`);
+    console.log(`- Reason: ${failureData.reason}`);
+    console.log(`- ItemId: ${failureData.itemId}`);
+})
+
+orderProcessor.on('PROCESSING_SUCCESS', (orderNumber) => {
+    console.log(`Pre Order Checks Passed for ${orderNumber}`)
+})
+
+orderProcessor.placeOrder({
+    orderNumber: 'OD2323',
+    lineItems: [
+        {
+            itemId: 3,
+            quantity: 4
+        },
+        {
+            itemId: 5,
+            quantity: 4
+        }
+    ]
+});
+
+
+orderProcessor.placeOrder({
+    orderNumber: 'OD2324',
+    lineItems: [
+        {
+            itemId: 2,
+            quantity: 1
+        },
+        {
+            itemId: 0,
+            quantity: 1
+        }
+    ]
+});
+
+=====================================================================================================================================================================
+=====================================================================================================================================================================
+                                        THE END
+                                        THANK YOU!!
